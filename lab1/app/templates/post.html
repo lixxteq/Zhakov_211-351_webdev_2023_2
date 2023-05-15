@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="post mt-2 text-center">
+    <div class="post-header mb-3">
+        <h3>{{ title }}</h3>
+        <h4>{{post.author}}, дата публикации: {{post.date}}</h4>
+    </div>
+    <div class="post-body mb-5">
+        <img class="img-fluid w-75 rounded mb-3" src="{{ url_for('static', filename='images/' + post.image_id) }}"
+            alt="Attached image">
+        <p class="text-start">{{post.text}}</p>
+    </div>
+    <div class="comment-form mb-5">
+        <form class="form-control text-start">
+            <label for="comment-input" class="form-label">Оставьте комментарий</label>
+            <textarea class="form-control mb-2" name="comment-input" id="comment-input" rows="3"></textarea>
+            <input class="btn btn-primary" type="button" value="Отправить">
+        </form>
+    </div>
+    <div class="comment-list d-flex flex-column text-start">
+        {% for c in post.comments %}
+        <div class="d-flex">
+            <div class="flex-shrink-0">
+                <img src="{{url_for('static', filename='images/avatar.jpg')}}" class="rounded-circle comment-avatar" alt="Avatar">
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5>{{c.author}}</h5>
+                <p>{{c.text}}</p>
+
+                <!-- nested comment -->
+                {% for r in c.replies %}
+                <div class="d-flex mt-4">
+                    <div class="flex-shrink-0">
+                        <img src="{{url_for('static', filename='images/avatar.jpg')}}" class="rounded-circle comment-avatar" alt="Sample Image">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5>{{r.author}}</h5>
+                        <p>{{r.text}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}
