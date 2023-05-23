@@ -4,7 +4,7 @@
 <div class="post mt-2 text-center">
     <div class="post-header mb-3">
         <h3>{{ title }}</h3>
-        <h4>{{post.author}}, дата публикации: {{post.date}}</h4>
+        <h4>{{post.author}}, дата публикации: {{post.date.strftime('%d-%m-%Y, %H:%M')}}</h4>
     </div>
     <div class="post-body mb-5">
         <img class="img-fluid w-75 rounded mb-3" src="{{ url_for('static', filename='images/' + post.image_id) }}"
