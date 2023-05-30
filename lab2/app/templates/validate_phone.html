@@ -12,7 +12,7 @@
         {{ error }}
     </div>
     {% endif %}
-    {% if not error %}
+    {% if not error and request.method == 'POST' %}
     <div class="valid-feedback d-block">
         Корректный ввод. Форматированный номер: {{ formatted }}
     </div>
