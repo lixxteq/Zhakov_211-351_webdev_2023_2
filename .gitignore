@@ -1,4 +1,8 @@
+# development dependencies
 venv
-__pycache__
+.venv
 .env
-.vercel 
+
+# other
+.vercel
+__pycache__

@@ -3,14 +3,17 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 
 app = Flask(__name__)
 application = app
-app.config.from_pyfile('config.py')
+app.config.from_pyfile("config.py")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-login_manager.login_view = 'login'
-login_manager.login_message = 'Для доступа к этой странице необходимо пройти процедуру аутентификации.'
-login_manager.login_message_category = 'warning'
+login_manager.login_view = "login"
+login_manager.login_message = (
+    "Для доступа к этой странице необходимо пройти процедуру аутентификации."
+)
+login_manager.login_message_category = "warning"
+
 
 class User(UserMixin):
     def __init__(self, id, login):
@@ -18,7 +21,7 @@ class User(UserMixin):
         self.login = login
 
 def get_users():
-    users = [
+    return [
         {
             "id": "1",
             "login": "user",
@@ -29,9 +32,8 @@ def get_users():
             "login": "roman",
             "password": "admin",
         },
-        
     ]
-    return users
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,43 +51,41 @@ def authentificate_user(login, password):
     return None
 
 
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         user_login = request.form["login_input"]
         user_password = request.form["password_input"]
-        remember_me = request.form.get('remember_me') == 'on'
+        remember_me = request.form.get("remember_me") == "on"
 
         auth_user = authentificate_user(user_login, user_password)
         if auth_user:
             login_user(auth_user, remember=remember_me)
             flash("Вы успешно авторизованы", "success")
-            next_ = request.args.get('next')
+            next_ = request.args.get("next")
             return redirect(next_ or url_for("index"))
-            
-        flash("Введены неверные логин и/или пароль", "danger") 
 
-    return render_template('login.html')
+        flash("Введены неверные логин и/или пароль", "danger")
+    return render_template("login.html")
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for("index"))
 
-@app.route('/secret_page')
+@app.route("/secret_page")
 @login_required
 def secret_page():
-    return render_template('secret_page.html')
+    return render_template("secret_page.html")
 
-@app.route('/visits')
+@app.route("/visits")
 def visits():
-    if 'visit_counter' in session:
-        session['visit_counter'] += 1
+    if "visit_counter" in session:
+        session["visit_counter"] += 1
     else:
-        session['visit_counter'] = 1
-    return render_template('visits.html')
+        session["visit_counter"] = 1
+    return render_template("visits.html")
