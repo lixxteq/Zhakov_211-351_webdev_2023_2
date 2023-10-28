@@ -28,7 +28,6 @@ def extract_form():
 # Валидация формы создания пользователя
 def create_user_validation(params):
     PERMITTED_LOGIN = "abcdefghijklmnopqrstuvwxyz1234567890"
-    PERMITTED_PASSWORD = '''abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890~!?@#$%^&*_-+()[]{}></\|"'.,:;'''
     errors_res = {
         "login": None,
         "password": None,
@@ -59,9 +58,9 @@ def create_user_validation(params):
         errors_res["first_name"] = error_message["EMPTY_NAME"]
         errors_res["isvalidate"] = 0
 
-    checked_password = check_password(params, PERMITTED_PASSWORD)
-    if not checked_password.get("password") is None:
-        errors_res["password"] = checked_password["password"]
+    checked_password = check_password(params.get('password'))
+    if not checked_password is None:
+        errors_res["password"] = checked_password
         errors_res["isvalidate"] = 0
 
     return errors_res
@@ -102,27 +101,26 @@ def edit_user_validation(params):
 
     return errors_res
 
+PERMITTED_PASSWORD = '''abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890~!?@#$%^&*_-+()[]{}></\|"'.,:;'''
+
 #Валидация пароля
-def check_password(params, PERMITTED_PASSWORD):
-    errors_res = {
-        "password": None,
-    }
+def check_password(password):
+    errors_res = None
     count_upper_letters = 0
     count_lower_letters = 0
     count_digits = 0
-    password = params.get("password")
     if password is None:
-        errors_res["password"] = error_message["EMPTY_PASSWORD"]
+        errors_res = error_message["EMPTY_PASSWORD"]
     elif len(password) < 8:
-        errors_res["password"] = error_message["SHORT_PASSWORD"]
+        errors_res = error_message["SHORT_PASSWORD"]
     elif len(password) > 128:
-        errors_res["password"] = error_message["LONG_PASSWORD"]
+        errors_res = error_message["LONG_PASSWORD"]
     elif password.find(" ") > -1:
-        errors_res["password"] = error_message["INCORRECT_PASSWORD"]
+        errors_res = error_message["INCORRECT_PASSWORD"]
     else:
         for char in password:
             if PERMITTED_PASSWORD.find(char.lower()) == -1:
-                errors_res["password"] = error_message["INCORRECT_PASSWORD"]
+                errors_res = error_message["INCORRECT_PASSWORD"]
                 break
             elif char.isalpha():
                 if char.isupper():
@@ -132,10 +130,10 @@ def check_password(params, PERMITTED_PASSWORD):
             elif char.isdigit():
                 count_digits += 1
         if count_upper_letters < 1:
-            errors_res["password"] = error_message["ALPHA_IN_PASSWORD"]
+            errors_res = error_message["ALPHA_IN_PASSWORD"]
         elif count_lower_letters < 1:
-            errors_res["password"] = error_message["LITERAL_IN_PASSWORD"]
+            errors_res = error_message["LITERAL_IN_PASSWORD"]
         elif count_digits < 1:
-            errors_res["password"] = error_message["DIGITS_IN_PASSWORD"]
+            errors_res = error_message["DIGITS_IN_PASSWORD"]
     return errors_res
 

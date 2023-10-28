@@ -2,7 +2,7 @@ from flask import Flask, render_template, session, request, redirect, url_for, f
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from db_factory import DataBase
 import mysql.connector
-from queries import AUTH_USER, LOAD_USER, LOAD_ROLES, ADD_USER, GET_USERS, VIEW_USER, EDIT_USER, DELETE_USER
+from queries import AUTH_USER, LOAD_USER, LOAD_ROLES, ADD_USER, GET_USERS, UPDATE_PASSWORD, VIEW_USER, EDIT_USER, DELETE_USER
 from utils import extract_form, edit_user_validation, create_user_validation, error_message, check_password
 
 app = Flask(__name__)
@@ -116,7 +116,7 @@ def new_user():
             flash("При сохранении возникла ошибка", "danger")
             return render_template("users/new.html", roles = load_roles(), user=formdata, errors=errors)
         flash("Пользователь успешно добавлен", "success")
-        return redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 # Редактирование пользователя
 @app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
@@ -147,7 +147,7 @@ def edit_user(user_id):
             flash("При редактировании пользователя возникла ошибка", "danger")
             db.connection.rollback()
             return render_template('users/edit.html', user=formdata, roles=load_roles(), errors=errors)
-        return redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 # Удаление пользователя
 @app.route("/users/<int:user_id>/delete", methods=['POST'])
@@ -168,7 +168,6 @@ def delete_user(user_id):
 @login_required
 def change_password():
     user_id = current_user.id
-    PERMITTED_PASSWORD = '''abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890~!?@#$%^&*_-+()[]{}></\|"'.,:;'''
     errors = {
         "old": None,
         "check": None,
@@ -195,10 +194,10 @@ def change_password():
             if db_user is None:
                 errors["old"] = error_message["INCORRECT_PASSWORD"]
                 errors["ok"] = 0
-            validate_password = check_password({"password": new_passwd}, PERMITTED_PASSWORD)
-            if not validate_password.get("password") is None:
-                errors["password"] = validate_password["password"]
-                errors["check"] = validate_password["password"]
+            validate_password = check_password(new_passwd)
+            if not validate_password is None:
+                errors["password"] = validate_password
+                errors["check"] = validate_password
                 errors["ok"] = 0
             if new_passwd != check_new_passwd:
                 errors["check"] = error_message["WRONG_CONFIRMATION_PASSWORD"]
@@ -207,10 +206,9 @@ def change_password():
             flash("Проверьте введённые данные", "danger")
             return render_template('change_password.html', errors=errors, fields=fields)
     
-        update_query = "UPDATE users SET password_hash = SHA2(%s, 256) WHERE id = %s;"
         try:
             with db.connection.cursor(named_tuple = True) as cursor:
-                cursor.execute(update_query, (new_passwd, user_id))
+                cursor.execute(UPDATE_PASSWORD, (new_passwd, user_id))
                 db.connection.commit()
                 flash("Пароль успешно обновлен", "success")
                 return redirect(url_for("index"))

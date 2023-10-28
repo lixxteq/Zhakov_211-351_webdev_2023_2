@@ -10,3 +10,4 @@ EDIT_USER = """
         role_id = %(role_id)s WHERE id = %(id)s;
         """
 DELETE_USER="DELETE FROM users WHERE id = %s"
+UPDATE_PASSWORD="UPDATE users SET password_hash = SHA2(%s, 256) WHERE id = %s;"
