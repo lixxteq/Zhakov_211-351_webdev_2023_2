@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Пользователи</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>№</th>
+            <th>Логин</th>
+            <th>Фамилия</th>
+            <th>Имя</th>
+            <th>Отчество</th>
+            <th>Роль</th>
+            <th>Действие</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ user.login }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.first_name }}</td>
+            <td>
+                {% if user.middle_name %}
+                {{ user.middle_name }}
+                {% endif %}
+            </td>
+            <td>
+                {% if user.role_name %}
+                {{user.role_name }}
+                {% else %}
+                Роль не назначена
+                {% endif %}
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-secondary" href="{{ url_for('view_user', user_id=user.id) }}">Просмотр</a>
+                    {% if current_user.is_authenticated %}
+                    <a class="btn btn-secondary" href="{{ url_for('edit_user', user_id=user.id)}}">Редактировать</a>
+                    <a href="" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                        data-url="{{ url_for('delete_user', user_id=user.id) }}" data-name="{{user.last_name ~ ' ' ~ user.first_name}}"> Удалить
+                    </a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if current_user.is_authenticated %}
+<a class="btn btn-primary" href="{{ url_for('new_user') }}">Добавить пользователя</a>
+{% endif %}
+
+{% include 'users/modal.html' %}
+
+{% endblock %}

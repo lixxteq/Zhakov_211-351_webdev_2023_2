@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% from "users/conditional_form.html" import user_form %}
+
+{% block content %}
+<h1 class="py-3">Создание пользователя</h1>
+
+{{ user_form(roles, url_for('new_user'), user, errors) }}
+
+{% endblock %}
